@@ -56,26 +56,17 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace ros
+namespace log4cxx
 {
-namespace console
-{
-namespace impl
-{
-
-log4cxx::LevelPtr g_level_lookup[ levels::Count ] =
-{
-  log4cxx::Level::getDebug(),
-  log4cxx::Level::getInfo(),
-  log4cxx::Level::getWarn(),
-  log4cxx::Level::getError(),
-  log4cxx::Level::getFatal(),
-};
-
-
 class ROSConsoleStdioAppender : public log4cxx::AppenderSkeleton
 {
 public:
+  DECLARE_LOG4CXX_OBJECT(ROSConsoleStdioAppender)
+  BEGIN_LOG4CXX_CAST_MAP()
+    LOG4CXX_CAST_ENTRY(ROSConsoleStdioAppender)
+    LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
+  END_LOG4CXX_CAST_MAP()
+
   ~ROSConsoleStdioAppender()
   {
   }
@@ -84,26 +75,26 @@ protected:
   virtual void append(const log4cxx::spi::LoggingEventPtr& event, 
                       log4cxx::helpers::Pool&)
   {
-    levels::Level level = levels::Count;
+    ros::console::levels::Level level = ros::console::levels::Count;
     if (event->getLevel() == log4cxx::Level::getDebug())
     {
-      level = levels::Debug;
+      level = ros::console::levels::Debug;
     }
     else if (event->getLevel() == log4cxx::Level::getInfo())
     {
-      level = levels::Info;
+      level = ros::console::levels::Info;
     }
     else if (event->getLevel() == log4cxx::Level::getWarn())
     {
-      level = levels::Warn;
+      level = ros::console::levels::Warn;
     }
     else if (event->getLevel() == log4cxx::Level::getError())
     {
-      level = levels::Error;
+      level = ros::console::levels::Error;
     }
     else if (event->getLevel() == log4cxx::Level::getFatal())
     {
-      level = levels::Fatal;
+      level = ros::console::levels::Fatal;
     }
 #ifdef _MSC_VER
     LOG4CXX_ENCODE_CHAR(tmpstr, event->getMessage());  // has to handle LogString with wchar types.
@@ -123,6 +114,25 @@ protected:
     return false;
   }
 };
+
+}
+
+namespace ros
+{
+namespace console
+{
+namespace impl
+{
+
+log4cxx::LevelPtr g_level_lookup[ levels::Count ] =
+{
+  log4cxx::Level::getDebug(),
+  log4cxx::Level::getInfo(),
+  log4cxx::Level::getWarn(),
+  log4cxx::Level::getError(),
+  log4cxx::Level::getFatal(),
+};
+
 
 void initialize()
 {
@@ -370,3 +380,7 @@ void shutdown()
 } // namespace impl
 } // namespace console
 } // namespace ros
+
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+IMPLEMENT_LOG4CXX_OBJECT(ROSConsoleStdioAppender)
