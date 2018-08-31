@@ -162,8 +162,6 @@ void initialize()
     log4cxx::PropertyConfigurator::configure(config_file);
   }
 
-  log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(ROSCONSOLE_ROOT_LOGGER_NAME);
-  logger->addAppender(new ROSConsoleStdioAppender);
 #ifdef _MSC_VER
   if ( ros_root_cstr != NULL ) {
 	  free(ros_root_cstr);
