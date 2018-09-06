@@ -44,6 +44,10 @@
   // Have to be able to encode wchar LogStrings on windows.
   #include "log4cxx/helpers/transcoder.h"
 #endif
+#ifdef WITH_JOURNALD
+#define SD_JOURNAL_SUPPRESS_LOCATION
+#include <systemd/sd-journal.h>
+#endif
 
 #include <boost/thread.hpp>
 #include <boost/shared_array.hpp>
@@ -115,6 +119,44 @@ protected:
   }
 };
 
+#ifdef WITH_JOURNALD
+class SystemJournalAppender : public log4cxx::AppenderSkeleton
+{
+public:
+  DECLARE_LOG4CXX_OBJECT(SystemJournalAppender)
+  BEGIN_LOG4CXX_CAST_MAP()
+    LOG4CXX_CAST_ENTRY(SystemJournalAppender)
+    LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
+  END_LOG4CXX_CAST_MAP()
+
+  ~SystemJournalAppender()
+  {
+  }
+
+protected:
+  void append(const log4cxx::spi::LoggingEventPtr& event, log4cxx::helpers::Pool&)
+  {
+    const log4cxx::spi::LocationInfo& location_info = event->getLocationInformation();
+    ::sd_journal_send(
+      "MESSAGE=%s", event->getMessage().c_str(),
+      "PRIORITY=%i", event->getLevel()->getSyslogEquivalent(),
+      "CODE_FILE=%s", location_info.getFileName(),
+      "CODE_LINE=%i", location_info.getLineNumber(),
+      "CODE_FUNC=%s", location_info.getMethodName().c_str(),
+      NULL);
+  }
+
+  virtual bool requiresLayout() const
+  {
+    return false;
+  }
+
+  virtual void close()
+  {
+  }
+};
+
+#endif
 }
 
 namespace ros
@@ -383,3 +425,7 @@ void shutdown()
 using namespace log4cxx;
 using namespace log4cxx::helpers;
 IMPLEMENT_LOG4CXX_OBJECT(ROSConsoleStdioAppender)
+
+#ifdef WITH_JOURNALD
+IMPLEMENT_LOG4CXX_OBJECT(SystemJournalAppender)
+#endif
