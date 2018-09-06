@@ -143,6 +143,7 @@ protected:
       "CODE_FILE=%s", location_info.getFileName(),
       "CODE_LINE=%i", location_info.getLineNumber(),
       "CODE_FUNC=%s", location_info.getMethodName().c_str(),
+      "SYSLOG_IDENTIFIER=%s", ros::console::g_node_name.c_str(),
       NULL);
   }
 

@@ -86,6 +86,7 @@ extern ROSCONSOLE_DECL log4cxx::LevelPtr g_level_lookup[];
 
 extern ROSCONSOLE_DECL bool get_loggers(std::map<std::string, levels::Level>& loggers);
 extern ROSCONSOLE_DECL bool set_logger_level(const std::string& name, levels::Level level);
+extern ROSCONSOLE_DECL void set_node_name(const std::string& node_name);
 
 /**
  * \brief Only exported because the macros need it.  Do not use directly.
@@ -96,6 +97,11 @@ extern ROSCONSOLE_DECL bool g_initialized;
  * \brief Only exported because the TopicManager need it.  Do not use directly.
  */
 extern ROSCONSOLE_DECL std::string g_last_error_message;
+
+/**
+ * \brief Set via initialize(node_name). For internal use only. Do not use directly.
+ */
+extern ROSCONSOLE_DECL std::string g_node_name;
 
 class LogAppender
 {

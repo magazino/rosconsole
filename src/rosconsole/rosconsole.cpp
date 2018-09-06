@@ -81,6 +81,7 @@ bool set_logger_level(const std::string& name, levels::Level level);
 bool g_initialized = false;
 bool g_shutting_down = false;
 boost::mutex g_init_mutex;
+std::string g_node_name = "";
 
 #ifdef ROSCONSOLE_BACKEND_LOG4CXX
 log4cxx::LevelPtr g_level_lookup[levels::Count] =
@@ -728,6 +729,11 @@ bool get_loggers(std::map<std::string, levels::Level>& loggers)
 bool set_logger_level(const std::string& name, levels::Level level)
 {
   return ros::console::impl::set_logger_level(name, level);
+}
+
+void set_node_name(const std::string& node_name)
+{
+    g_node_name = node_name;
 }
 
 } // namespace console
