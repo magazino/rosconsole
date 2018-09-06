@@ -55,6 +55,7 @@
 #include <memory>
 #include <cstring>
 #include <stdexcept>
+#include <pluginlib/class_loader.h>
 
 namespace log4cxx
 {
@@ -133,9 +134,14 @@ log4cxx::LevelPtr g_level_lookup[ levels::Count ] =
   log4cxx::Level::getFatal(),
 };
 
+pluginlib::ClassLoader<log4cxx::AppenderSkeleton> plugin_loader("rosconsole", "log4cxx::AppenderSkeleton");
+
 
 void initialize()
 {
+  std::vector<std::string> classes = plugin_loader.getDeclaredClasses();
+  for (std::vector<std::string>::iterator it = classes.begin(); it != classes.end(); ++it)
+      plugin_loader.loadLibraryForClass(*it);
   // First set up some sane defaults programmatically.
   log4cxx::LoggerPtr ros_logger = log4cxx::Logger::getLogger(ROSCONSOLE_ROOT_LOGGER_NAME);
   ros_logger->setLevel(log4cxx::Level::getInfo());
@@ -374,6 +380,9 @@ void shutdown()
   // See https://code.ros.org/trac/ros/ticket/3271
   //
   log4cxx::Logger::getRootLogger()->getLoggerRepository()->shutdown();
+  std::vector<std::string> classes = plugin_loader.getDeclaredClasses();
+  for (std::vector<std::string>::iterator it = classes.begin(); it != classes.end(); ++it)
+      plugin_loader.unloadLibraryForClass(*it);
 }
 
 } // namespace impl
