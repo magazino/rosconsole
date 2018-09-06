@@ -129,6 +129,8 @@ public:
     LOG4CXX_CAST_ENTRY_CHAIN(AppenderSkeleton)
   END_LOG4CXX_CAST_MAP()
 
+  SystemJournalAppender();
+
   ~SystemJournalAppender()
   {
   }
@@ -143,6 +145,7 @@ protected:
       "CODE_FILE=%s", location_info.getFileName(),
       "CODE_LINE=%i", location_info.getLineNumber(),
       "CODE_FUNC=%s", location_info.getMethodName().c_str(),
+      "SYSLOG_IDENTIFIER=%s", syslog_identifier_.c_str(),
       NULL);
   }
 
@@ -154,7 +157,18 @@ protected:
   virtual void close()
   {
   }
+
+  std::string syslog_identifier_;
 };
+
+SystemJournalAppender::SystemJournalAppender() :
+  syslog_identifier_(program_invocation_short_name)
+{
+  char* env_var = NULL;
+  env_var = getenv("SYSLOG_IDENTIFIER");
+  if (env_var)
+    syslog_identifier_ = std::string(env_var);
+}
 
 #endif
 }
